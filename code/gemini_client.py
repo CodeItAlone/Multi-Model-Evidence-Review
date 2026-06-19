@@ -89,7 +89,9 @@ class GeminiClient:
                 return await self._single_call(system_prompt, user_prompt, image_parts)
             except Exception as e:
                 last_error = e
+                print(f"\n[WARNING] Gemini API attempt {attempt + 1} failed: {e}")
                 if attempt < MAX_RETRIES:
+                    print(f"Retrying in {backoff} seconds...")
                     await asyncio.sleep(backoff)
                     backoff *= BACKOFF_MULTIPLIER
                 else:
@@ -123,6 +125,9 @@ class GeminiClient:
                 config=config,
             )
         )
+        
+        # Enforce rate-limit spacing (15 RPM -> 4.5 seconds sleep between requests)
+        await asyncio.sleep(4.5)
         
         # Track tokens
         if response.usage_metadata:

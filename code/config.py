@@ -21,12 +21,12 @@ OUTPUT_PATH = PROJECT_ROOT / "output.csv"
 # --- Gemini API ---
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-CONCURRENCY = int(os.getenv("CONCURRENCY", "5"))
+CONCURRENCY = int(os.getenv("CONCURRENCY", "1"))
 
 # --- Retry Settings ---
-MAX_RETRIES = 3
-INITIAL_BACKOFF_SECONDS = 1.0
-BACKOFF_MULTIPLIER = 2.0
+MAX_RETRIES = 5
+INITIAL_BACKOFF_SECONDS = 15.0
+BACKOFF_MULTIPLIER = 1.5
 
 # --- Image Validation ---
 ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}
