@@ -97,7 +97,7 @@ async def compare_strategies():
     
     # Recommendation
     best = "few_shot" if f["claim_status_accuracy"] >= d["claim_status_accuracy"] else "direct"
-    print(f"\n✅ Recommended strategy: {best}")
+    print(f"\n[INFO] Recommended strategy: {best}")
     
     return result_direct, result_few_shot
 
