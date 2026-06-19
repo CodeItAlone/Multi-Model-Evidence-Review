@@ -138,11 +138,11 @@ async def run_pipeline(
     # Validate
     errors = validate_output_csv(output_path, expected_rows=len(claims))
     if errors:
-        print(f"\n⚠️  Validation warnings:")
+        print(f"\n[WARNING] Validation warnings:")
         for err in errors:
             print(f"  - {err}")
     else:
-        print(f"  ✅ Output validated: {len(ordered_outputs)} rows, 14 columns")
+        print(f"  [SUCCESS] Output validated: {len(ordered_outputs)} rows, 14 columns")
     
     # Summary
     token_summary = client.tracker.summary()
