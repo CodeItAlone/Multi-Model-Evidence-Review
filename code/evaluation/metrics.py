@@ -122,16 +122,16 @@ def print_metrics(metrics: dict):
     print(f"EVALUATION RESULTS ({metrics['total_samples']} samples)")
     print(f"{'='*60}")
     
-    print(f"\n📊 Overall Metrics:")
+    print(f"\n[INFO] Overall Metrics:")
     overall = metrics["overall"]
     for key, value in overall.items():
         print(f"  {key}: {value:.1%}")
     
-    print(f"\n📋 Per-Object claim_status Accuracy:")
+    print(f"\n[INFO] Per-Object claim_status Accuracy:")
     for obj, data in metrics.get("per_object", {}).items():
         print(f"  {obj}: {data['claim_status_accuracy']:.1%} ({data['count']} claims)")
     
-    print(f"\n📈 Per-Field Detail:")
+    print(f"\n[INFO] Per-Field Detail:")
     for field, data in metrics["per_field"].items():
         if "accuracy" in data:
             print(f"  {field}: {data['accuracy']:.1%} ({data['correct']}/{data['total']})")
