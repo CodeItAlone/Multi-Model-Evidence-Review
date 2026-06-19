@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from config import (
     SAMPLE_CLAIMS_PATH, TEST_CLAIMS_PATH,
     USER_HISTORY_PATH, EVIDENCE_REQUIREMENTS_PATH,
-    OUTPUT_PATH, PROJECT_ROOT,
+    OUTPUT_PATH, PROJECT_ROOT, CONCURRENCY,
 )
 from pipeline import run_pipeline
 
@@ -52,8 +52,8 @@ def main():
         help="Prompt strategy (default: few_shot)"
     )
     parser.add_argument(
-        "--concurrency", type=int, default=5,
-        help="Max parallel Gemini calls (default: 5)"
+        "--concurrency", type=int, default=CONCURRENCY,
+        help=f"Max parallel Gemini calls (default: {CONCURRENCY})"
     )
     parser.add_argument(
         "--api-key", type=str, default="",
