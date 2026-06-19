@@ -20,7 +20,7 @@ OUTPUT_PATH = PROJECT_ROOT / "output.csv"
 
 # --- Gemini API ---
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY", "")
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-flash-lite-latest")
 CONCURRENCY = int(os.getenv("CONCURRENCY", "1"))
 
 # --- Retry Settings ---
