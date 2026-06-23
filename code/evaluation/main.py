@@ -11,8 +11,10 @@ import csv
 import sys
 from pathlib import Path
 
-# Add parent code directory to path
+# Add parent code directory and repo root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
 
 from config import (
     SAMPLE_CLAIMS_PATH, USER_HISTORY_PATH,

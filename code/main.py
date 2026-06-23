@@ -19,8 +19,10 @@ import asyncio
 import sys
 from pathlib import Path
 
-# Add code directory to path for imports
+# Add code directory and repo root to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 
 from config import (
     SAMPLE_CLAIMS_PATH, TEST_CLAIMS_PATH,
