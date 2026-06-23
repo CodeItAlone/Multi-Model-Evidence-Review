@@ -1,161 +1,126 @@
-# HackerRank Orchestrate
+# Multimodal Evidence SDK
 
-Starter repository for the **HackerRank Orchestrate** 24-hour hackathon.
-
-Build a system that verifies visual evidence for damage claims across three object types: **cars**, **laptops**, and **packages**.
-
-Your system will receive claim conversations, one or more submitted images, user claim history, and minimum evidence requirements. It must decide whether the submitted images support the claim, contradict it, or do not provide enough information.
-
-Read [`problem_statement.md`](./problem_statement.md) for the full task spec, input/output schema, and allowed values.
+`multimodal-evidence-sdk` is a Python SDK for verifying, ranking, and reviewing multi-modal damage claims using Gemini vision models. It provides structural validation and decision-making logic originally developed for the HackerRank Orchestrate Evidence Review platform.
 
 ---
 
-## Contents
+## Installation
 
-1. [Repository layout](#repository-layout)
-2. [What you need to build](#what-you-need-to-build)
-3. [Where your code goes](#where-your-code-goes)
-4. [Quickstart](#quickstart)
-5. [Evaluation](#evaluation)
-6. [Chat transcript logging](#chat-transcript-logging)
-7. [Submission](#submission)
-8. [Judge interview](#judge-interview)
-
----
-
-## Repository layout
-
-```text
-.
-├── AGENTS.md                         # Rules for AI coding tools + transcript logging
-├── problem_statement.md              # Full task description and I/O schema
-├── README.md                         # You are here
-├── code/                             # Build your solution here
-│   ├── main.py                       # Suggested terminal entry point
-│   └── evaluation/
-│       └── main.py                   # Suggested evaluation entry point
-└── dataset/
-    ├── sample_claims.csv             # Inputs + expected outputs for development
-    ├── claims.csv                    # Inputs only; run your system on these rows
-    ├── user_history.csv              # Historical claim counts and risk context
-    ├── evidence_requirements.csv     # Minimum image evidence requirements
-    └── images/
-        ├── sample/                   # Images referenced by sample_claims.csv
-        └── test/                     # Images referenced by claims.csv
-```
-
----
-
-## What you need to build
-
-A system that, for each row in `dataset/claims.csv`, produces one row in `output.csv`.
-
-Input fields:
-
-| Column | Meaning |
-|---|---|
-| `user_id` | User submitting the claim; use this to look up `dataset/user_history.csv` |
-| `image_paths` | One or more submitted image paths, separated by semicolons |
-| `user_claim` | Chat transcript describing the issue |
-| `claim_object` | `car`, `laptop`, or `package` |
-
-Required output fields:
-
-| Column | Meaning |
-|---|---|
-| `evidence_standard_met` | Whether the image set is sufficient to evaluate the claim |
-| `evidence_standard_met_reason` | Short reason for the evidence decision |
-| `risk_flags` | Semicolon-separated risk flags, or `none` |
-| `issue_type` | Visible issue type |
-| `object_part` | Relevant object part |
-| `claim_status` | `supported`, `contradicted`, or `not_enough_information` |
-| `claim_status_justification` | Concise explanation grounded in the image evidence |
-| `supporting_image_ids` | Image IDs supporting the decision, or `none` |
-| `valid_image` | Whether the image set is usable for automated review |
-| `severity` | `none`, `low`, `medium`, `high`, or `unknown` |
-
-Hard requirements:
-
-- Must read the provided CSV files and local images.
-- Must produce `output.csv` with the exact schema in `problem_statement.md`.
-- Must include an evaluation workflow
-- Must avoid hardcoded test labels or file-specific answers.
-
-Beyond that you are free to bring your own approach: VLMs, LLMs, structured prompting, rule layers, batching, caching, evaluation pipelines, model comparison, or anything else.
-
----
-
-## Where your code goes
-
-All of your work belongs in [`code/`](./code/). The repo ships with empty starter files that you can grow into your full solution.
-
-Suggested conventions:
-
-- Put your main runnable solution in `code/main.py`, or document your own entry point clearly.
-- Put evaluation code under `code/evaluation/` or an `evaluation/` folder included in your final `code.zip`.
-- Write final predictions to `output.csv`.
-
----
-
-## Quickstart
-
-Clone this repository:
+Install the package locally in editable mode:
 
 ```bash
-git clone git@github.com:interviewstreet/hackerrank-orchestrate-june26.git
-cd hackerrank-orchestrate-june26
+pip install -e .
 ```
 
-You are free to use any language or runtime. Python, JavaScript, and TypeScript are all reasonable choices.
+---
+
+## SDK Usage
+
+```python
+from multimodal_evidence import (
+    retrieve_evidence,
+    rank_evidence,
+    verify_claim
+)
+
+# 1. Verify a claim statement factually (Text-only)
+result = verify_claim(
+    claim_text="India launched Chandrayaan-3 in 2023"
+)
+print(result["claim_status"])  # -> "supported"
+
+# 2. Verify a damage claim with image evidence (Multimodal)
+claim_result = verify_claim(
+    claim_text="The car rear bumper has a major dent",
+    images=["path/to/img_1.jpg"],
+    claim_object="car",
+    history={
+        "user_id": "usr_123",
+        "past_claim_count": 0,
+        "accept_claim": 0,
+        "manual_review_claim": 0,
+        "rejected_claim": 0,
+        "last_90_days_claim_count": 0,
+        "history_flags": "none",
+        "history_summary": ""
+    }
+)
+print(claim_result["claim_status"])
+```
 
 ---
 
-## Evaluation
+## Command Line Interface (CLI)
 
-The evaluation report should include:
+The SDK registers the `evidence` executable.
 
-- metrics on `dataset/sample_claims.csv`
-- at least two strategies, prompts, or model configurations compared
-- the final strategy used for `output.csv`
-- operational analysis covering model calls, token usage, image usage, approximate cost, runtime, and TPM/RPM considerations
+### 1. Verify a Statement
 
----
+```bash
+evidence verify "The Earth has two moons"
+```
 
-## Chat transcript logging
+For damage claims with images:
+```bash
+evidence verify "Rear bumper dent" --images "dataset/images/sample/case_001/img_1.jpg" --object car
+```
 
-This repo ships with an `AGENTS.md` that modern AI coding tools may read. It instructs the tool to append conversation turns to a shared log file:
+### 2. Search Factual Details or Requirements
 
-| Platform | Path |
-|---|---|
-| macOS / Linux | `$HOME/hackerrank_orchestrate/log.txt` |
-| Windows | `%USERPROFILE%\hackerrank_orchestrate\log.txt` |
+```bash
+evidence search "Chandrayaan-3 launch"
+```
 
-You will upload this log as your chat transcript at submission time. The chat transcript means your conversation with the AI coding tool you used to build the system. It is not the runtime logs, reasoning trace, or conversation history produced by the claim-verification agent you are building.
+```bash
+evidence search car
+```
 
-If you use multiple AI tools, include the relevant conversation logs from all of them in the same transcript file. Separate each tool's section with a clear divider and label it with the tool name.
+### 3. Rank Evidence from JSON Payload
 
-Never paste secrets into the chat. If secrets are needed, use environment variables.
-
----
-
-## Submission
-
-Submit the following files as instructed by HackerRank:
-
-1. **Code zip**: zip your runnable solution, README, prompts/configs, and evaluation folder. Exclude virtualenvs, `node_modules`, build artifacts, and unnecessary generated files.
-2. **Predictions CSV**: your final `output.csv` for all rows in `dataset/claims.csv`.
-3. **Chat transcript**: the `log.txt` from the path in [Chat transcript logging](#chat-transcript-logging).
-
-Before submitting, confirm:
-
-- `output.csv` has one row per row in `dataset/claims.csv`.
-- `output.csv` has the exact required columns in the exact required order.
-- Your evaluation files are included in `code.zip`.
+```bash
+evidence rank evidence.json
+```
 
 ---
 
-## Judge interview
+## Development & Evaluation
 
-After submission, the AI Judge may ask about your approach, implementation decisions, model usage, evaluation strategy, and how you used AI while building the solution.
+If you are participating in the **HackerRank Orchestrate** hackathon, you can run the evaluation metrics and pipeline using the scripts in `code/`:
 
-Be prepared to explain your solution in detail.
+### 1. Install Dependencies
+```bash
+cd code/
+pip install -r requirements.txt
+```
+
+### 2. Set API Key
+Copy the template `.env.example` to `.env` and insert your API key:
+```bash
+# code/.env
+GOOGLE_API_KEY=your_gemini_api_key_here
+```
+
+### 3. Run Pipeline on Test Data
+```bash
+cd code/
+python main.py
+```
+
+### 4. Run Strategy Evaluation
+```bash
+cd code/
+python evaluation/main.py --compare
+```
+
+---
+
+## Project Structure
+
+*   `multimodal_evidence/`: The SDK package directory.
+    *   `models/`: Pydantic schemas and enums.
+    *   `retrieval/`: Search and requirements indexing.
+    *   `ranking/`: Guardrails and risk flag merging.
+    *   `verification/`: Claims and factual verifications.
+    *   `multimodal/`: Gemini client wrapper and batch pipeline runner.
+*   `code/`: The hackathon pipeline interface (fully refactored to consume the SDK).
+*   `dataset/`: Claims databases and visual evidence.
